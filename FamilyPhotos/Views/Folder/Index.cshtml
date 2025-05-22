@@ -1,0 +1,306 @@
+﻿@using FamilyPhotos.Entities;
+@model FolderViewModel;
+@{
+    ViewData["Title"] = "Mappa - " + Model.Folder.Name;
+}
+
+<html lang="hu">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="/docs/4.0/assets/img/favicons/favicon.ico">
+    <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">-->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
+
+
+
+    <link href="~/css/site.css">
+
+    <link href="../../dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link href="album.css" rel="stylesheet">
+</head>
+
+<body>
+
+
+    <!-- #region Quick Edit -->
+
+    <div class="modal fade" tabindex="-1" role="dialog" id="editFolderModal" aria-labelledby="editFolderModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form asp-action="EditFolder" asp-controller="Folder" asp-route-folderId="@Model.Folder.Id" method="post">
+                    <div class="form-group">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Mappa módosítása</h5>
+                            <button type="button" class="close" onclick="$('#editFolderModal').modal('hide')" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- A mappa azonosítója -->
+                            <input type="hidden" name="id" id="editFolderId" value="@Model.Folder.Id" />
+
+                            <label for="editName">Név</label>
+                            <input type="text" name="name" id="editName" class="form-control" value="@Model.Folder.Name" required />
+
+                            <label for="editDate">Dátum</label>
+                            <input type="date" name="date" id="editDate" class="form-control" value="@(Model.Folder.Date?.ToString("yyyy-MM-dd") ?? "")" />
+
+                            <label for="editLocation">Hely</label>
+                            <input type="text" name="location" id="editLocation" class="form-control" value="@Model.Folder.Location" />
+
+                            <label for="editColor">Szín</label>
+                            <input type="color" name="color" id="editColor" class="form-control" value="@Model.Folder.Color" />
+
+                            <div id="peopleList">
+                                <label class="mb-2" for="personNames">Személyek</label>
+                                @if (Model.People.Any())
+                                {
+                                    for (int i = 0; i < Model.People.Count; i++)
+                                    {
+                                        <div class="person-field d-flex align-items-center mb-3">
+                                            <input type="text" name="PersonNames[@i]" placeholder="Személy neve" value="@Model.People[i].Name" class="form-control flex-grow-1 mr-2" />
+                                            <button type="button" class="btn btn-danger btn-sm remove-person-button">Törlés</button>
+                                        </div>
+                                    }
+                                }
+                                @if (!Model.People.Any())
+                                {
+                                    <div class="person-field d-flex align-items-center mb-3">
+                                        <input type="text" name="PersonNames[0]" placeholder="Személy neve" class="form-control flex-grow-1 mr-2" />
+                                        <button type="button" class="btn btn-danger btn-sm remove-person-button">Törlés</button>
+                                    </div>
+                                }
+                            </div>
+                            <button type="button" id="addPersonFieldButton" class="btn btn-primary mt-3">Új személy</button>
+
+
+                            <div class="form-group">
+                                <label for="isFavorite">
+                                    <input type="checkbox" name="isFavorite" id="isFavorite" value="true"
+                                    @(Model.Folder.IsFavorite ? "checked" : "") />
+                                    <span> Kedvenc</span>
+                                </label>
+                            </div>
+
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Mappa módosítása</button>
+                            <button type="button" class="btn btn-secondary" onclick="$('#editFolderModal').modal('hide')">Bezárás</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- #endregion -->
+    <!-- #region Fényképek -->
+    <main role="main">
+        <div class="album py-5">
+            <div class="container">
+                <div class="folderData" style="background-color: @Model.Folder.Color; padding: 30px; border: 1px solid rgba(0,0,0,0.2); border-radius: 15px; margin-bottom: 50px; /*text-align: center;*/">
+                    <h2>
+                        @Model.Folder.Name
+                    </h2>
+                    <p><strong><em>@Model.Folder.Location - @Model.Folder.Date</em></strong></p>
+                    <!-- mappához tartozó emberek listázása -->
+                    @if (Model.People.Any())
+                    {
+                        <p>
+                            @for (int i = 0; i < Model.People.Count; i++)
+                            {
+                                @Html.Raw(Model.People[i].Name)
+                                ;
+                                @if (i + 1 < Model.People.Count)
+                                {
+                                    @Html.Raw(", ")
+                                    ;
+                                }
+                            }
+                        </p>
+                    }
+                    <div class="btn-group mt-3">
+                        <button type="button" class="btn btn-sm btn-outline-dark" onclick="$('#editFolderModal').modal('show')">Szerkesztés <i class="fas fa-edit"></i></button>
+                        <form method="post" asp-action="DeleteFolder" asp-controller="Home" asp-route-id="@Model.Folder.Id" onsubmit="return confirm('Biztosan törölni akarod ezt a mappát?\nA törlés végleges.');">
+                            <button type="submit" onclick="return('Biztosan törölni akarod a mappát?\nA törlés végleges!')" class="btn btn-sm btn-outline-danger"><i class="fa fa-trash" aria-hidden="true"></i></button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="row">
+                    @foreach (var photo in Model.Photos)
+                    {
+                        <div class="col-md-4">
+                            <div class="card mb-4 box-shadow" id="card">
+                                <img class="card-img-top" alt="" src="@photo.FilePath">
+                                <div class="card-body" id="cardbody">
+                                    <p class="card-text" id="cardtext">@photo.TimeStamp.ToString("yyyy-MM-dd HH:mm:ss")</p>
+                                    <div class="d-flex justify-content-between align-items-center" onclick="preventDefault">
+                                        <div class="btn-group">
+                                            <form method="post" asp-action="Delete" asp-controller="Image" asp-route-id="@photo.Id" onsubmit="return confirm('Biztosan törölni akarod ezt a fotót?\nA törlés végleges.');">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fa fa-trash" aria-hidden="true"></i></button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+
+                    @if (Model.Photos.Count == 0)
+                    {
+                        <div>
+                            A mappa üres. Adj hozzá fényképeket.
+                        </div>
+                    }
+                </div>
+
+                <!---->
+                <!---->
+                <!-- #region Photo Upload -->
+                <div class="container">
+                    <h5>Fénykép feltöltése a mappába</h5>
+
+                    <form action="/Folder/Upload/@Model.Folder.Id" method="post" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <input type="file" name="files" id="fileUpload" class="form-control" multiple />
+                        </div>
+                        <br />
+                        <button type="submit" class="btn btn-primary">Feltöltés</button>
+                    </form>
+
+                    <br />
+
+                </div>
+                <!-- #endregion -->
+
+            </div>
+        </div>
+
+    </main>
+    <!-- #endregion -->
+
+    <footer class="text-muted">
+        <div class="container">
+            <p class="float-right">
+                <a href="#">Back to top</a>
+            </p>
+        </div>
+    </footer>
+
+    <script src="~/js/site.js"></script>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery-slim.min.js"><\/script>')</script>
+    <script src="../../assets/js/vendor/popper.min.js"></script>
+    <script src="../../dist/js/bootstrap.min.js"></script>
+    <script src="../../assets/js/vendor/holder.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+
+    <script>
+        /*
+        document.addEventListener("DOMContentLoaded", function () {
+            const addPersonButton = document.getElementById("addPersonFieldButton");
+            const peopleListContainer = document.getElementById("peopleList");
+
+            if (addPersonButton && peopleListContainer) {
+                let personIndex = @Model.People?.Count ?? 0;
+
+                addPersonButton.addEventListener("click", function () {
+                    const fieldContainer = document.createElement("div");
+                    fieldContainer.classList.add("person-field");
+
+                    const newField = document.createElement("input");
+                    newField.type = "text";
+                    newField.name = `PersonNames[${personIndex}]`;
+                    newField.classList.add("form-control", "mb-2");
+                    newField.placeholder = "Személy neve";
+
+                    const removeButton = document.createElement("button");
+                    removeButton.textContent = "Törlés";
+                    removeButton.type = "button";
+                    removeButton.classList.add("btn", "btn-danger", "btn-sm", "ml-2");
+                    removeButton.addEventListener("click", function () {
+                        fieldContainer.remove();
+                    });
+
+                    fieldContainer.appendChild(newField);
+                    fieldContainer.appendChild(removeButton);
+                    peopleListContainer.appendChild(fieldContainer);
+
+                    personIndex++;
+                });
+
+            }
+        });
+        */
+        document.addEventListener("DOMContentLoaded", function () {
+            const addPersonButton = document.getElementById("addPersonFieldButton");
+            const peopleListContainer = document.getElementById("peopleList");
+
+            if (addPersonButton && peopleListContainer) {
+                let personIndex = @Model.People?.Count ?? 0;
+
+                // Delegált eseménykezelő a törlés gombokhoz
+                peopleListContainer.addEventListener("click", function (event) {
+                    if (event.target.classList.contains("remove-person-button")) {
+                        const fieldContainer = event.target.closest(".person-field");
+                        if (fieldContainer) {
+                            fieldContainer.remove();
+                            updatePersonFieldNames();
+                        }
+                    }
+                });
+
+                // Új személy mező hozzáadása
+                addPersonButton.addEventListener("click", function () {
+                    const fieldContainer = document.createElement("div");
+                    fieldContainer.classList.add("person-field", "d-flex", "align-items-center", "mb-3");
+
+                    const newField = document.createElement("input");
+                    newField.type = "text";
+                    newField.classList.add("form-control", "flex-grow-1", "mr-2");
+                    newField.placeholder = "Személy neve";
+
+                    const removeButton = document.createElement("button");
+                    removeButton.textContent = "Törlés";
+                    removeButton.type = "button";
+                    removeButton.classList.add("btn", "btn-danger", "btn-sm", "remove-person-button");
+
+                    fieldContainer.appendChild(newField);
+                    fieldContainer.appendChild(removeButton);
+                    peopleListContainer.appendChild(fieldContainer);
+
+                    updatePersonFieldNames();
+                });
+
+                // A mezők nevének frissítése, hogy a szerver oldali modell megkapja őket
+                function updatePersonFieldNames() {
+                    const personFields = peopleListContainer.querySelectorAll(".person-field input");
+                    personFields.forEach((field, index) => {
+                        field.name = `PersonNames[${index}]`;
+                    });
+                }
+            }
+        });
+
+
+
+
+
+
+
+    </script>
+
+</body>
+</html>

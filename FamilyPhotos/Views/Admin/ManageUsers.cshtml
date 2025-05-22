@@ -1,0 +1,127 @@
+﻿@model List<UserViewModel>
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<!--
+<style>
+    table {
+        border-collapse: collapse;
+        margin: 15px 0;
+        font-size: 1em;
+        font-family: sans-serif;
+        min-width: 100%;
+        overflow: hidden;
+        border-radius: 5px 5px 0 0;
+        overflow-wrap: break-word;
+    }
+
+    th, td {
+        padding: 12px 15px;
+    }
+
+    tbody tr {
+        border-bottom: 1px solid #dddddd;
+        width: fit-content;
+        white-space: nowrap;
+        overflow-wrap: break-word;
+    }
+
+        tbody tr:nth-of-type(even) {
+            background-color: rgba(0,0,0,0.012);
+        }
+</style>
+-->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0 align-items-center">Felhasználók</h2>
+    <div class="d-flex ms-auto" style="margin-right: 5%;">
+        <button type="button" class="btn btn-secondary" id="RegisterButton">Új felhasználó</button>
+    </div>
+</div>
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th scope="col">Felhasználónév</th>
+            <th scope="col">Szerep</th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td scope="row">@user.UserName</td>
+                <td>@(user.IsAdmin ? "Admin" : "Felhasználó")</td>
+                @if (!user.IsAdmin)
+                {
+                    <td>
+                        <form method="post" asp-controller="Admin" asp-action="MakeAdmin">
+                            <input type="hidden" name="userId" value="@user.UserId" />
+                            <button type="submit" class="btn btn-light">
+                                Admin hozzáadása
+                            </button>
+                        </form>
+                    </td>
+                    <td>
+                        <form method="post" action="@Url.Action("DeleteUser", "Admin")">
+                            <input type="hidden" name="userId" value="@user.UserId" />
+                            <button type="submit" class="btn btn-danger">Törlés</button>
+                        </form>
+                    </td>
+                }
+                @if (user.IsAdmin)
+                {
+                    <td></td>
+                    <td></td>
+                }
+
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+<!-- teszt szempont admin toggleolheto -->
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th scope="col">Felhasználónév</th>
+            <th scope="col">Szerep</th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td scope="row">
+                    @user.UserName
+                </td>
+                <td>@(user.IsAdmin ? "Admin" : "Felhasználó")</td>
+                <td>
+                    <form method="post" asp-controller="Admin" asp-action="ToggleAdmin">
+                        <input type="hidden" name="userId" value="@user.UserId" />
+                        <button type="submit" class="btn btn-light">
+                                @(user.IsAdmin ? "Szerepkör eltávolítása" : "Szerepkör hozzáadása")
+                        </button>
+                    </form>
+                </td>
+                <td>
+                    <form method="post" action="@Url.Action("DeleteUser", "Admin")">
+                        <input type="hidden" name="userId" value="@user.UserId" />
+                        <button type="submit" class="btn btn-danger">Törlés</button>
+                    </form>
+                </td>
+
+            </tr>
+        }
+    </tbody>
+</table>
+<script>
+    var RegisterButton = document.getElementById("RegisterButton");
+    RegisterButton.addEventListener('click', () => {
+        location.href = '@Url.Action("Register", "Account")';
+    })
+</script>

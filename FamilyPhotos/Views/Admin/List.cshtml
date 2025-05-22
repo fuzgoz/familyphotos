@@ -1,0 +1,66 @@
+﻿@model AdminViewModel;
+@{
+    ViewData["title"] = "Mappák listázása";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<head>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+</head>
+
+<div class="album py-5">
+    <div class="container">
+        <h2 class="mb-0 align-items-center">Összes mappa</h2>
+        <hr />
+        <div class="row">
+            @foreach (var folder in Model.Folders)
+            {
+                <div class="col-sm-3">
+                    <div class="card mb-4" style="background-color: @($"{folder.Color}59"); width: 100%;">
+                        <div class="wrapper">
+                            @if (folder.IsFavorite)
+                            {
+                                <div class="border"></div>
+                            }
+
+                            <div class="card-body">
+                                <p class="card-text">
+                                    <strong>Mappa neve: @folder.Name</strong>
+                                    <br/>
+                                    <strong>Dátum: @folder.Date</strong>
+                                    <br />
+                                    <strong>Hely: @folder.Location</strong>
+                                </p>
+                                <div class="d-flex justify-content-end align-items-center">
+                                    <div class="btn-group">
+                                        <form method="post" asp-action="DownloadXML" asp-controller="Admin" asp-route-id="@folder.Id">
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary"><img width="20" height="20" src="~/images/xml-logo-58BFD10607-seeklogo.com.png" alt="XML" /></button>
+                                        </form>
+                                        <form method="post" asp-action="Download" asp-controller="Folder" asp-route-id="@folder.Id" onsubmit="return confirm('Biztosan le akarod tölteni a mappát?);">
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary"><i class="fa fa-arrow-down" aria-hidden="true"></i></button>
+                                        </form>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            }
+            @if (Model.Folders.Count == 0)
+            {
+                <p>Nincsenek mappák. <button class="btn btn-link" onclick="$('#folderModal').modal('show')">Adj hozzá újat.</button></p>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .card-text:hover {
+        cursor:default !important;
+    }
+</style>

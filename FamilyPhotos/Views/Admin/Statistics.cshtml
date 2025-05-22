@@ -1,0 +1,109 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewData["Title"] = "Statisztikák";
+    var chartData = Model;
+}
+
+<h2>Statisztikák</h2>
+
+<div>
+    <ul>
+        @foreach (var folder in chartData)
+        {
+            <li>@folder.Date: @folder.ImageCount kép</li>
+        }
+    </ul>
+</div>
+
+<canvas id="myChart" width="400" height="200"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    var chartData = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model));
+
+    var cumulativeData = [];
+    var cumulativeSum = 0;
+
+    chartData.forEach(function (item) {
+        if (item.Date === "Nincs Dátum") {
+            cumulativeData.push({
+                date: item.Date,
+                totalImages: item.ImageCount
+            });
+        } else {
+            cumulativeSum += item.ImageCount;
+
+            cumulativeData.push({
+                date: item.Date,
+                totalImages: cumulativeSum
+            });
+        }
+    });
+
+    var labels = cumulativeData.map(function (item) { return item.date; });
+    var data = cumulativeData.map(function (item) { return item.totalImages; });
+
+    var config = {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Feltöltött képek száma adott dátumig',
+                data: data,
+                borderColor: '#36A2EB',
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function (tooltipItem) {
+                            return ' ' + tooltipItem.raw + ' kép';
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    type: 'category',
+                    title: {
+                        display: true,
+                        text: 'Dátum'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Képek'
+                    },
+                    ticks: {
+                        stepSize: 1,
+                        callback: function (value) {
+                            return value % 1 === 0 ? value : '';
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    var myChart = new Chart(document.getElementById('myChart'), config);
+
+</script>
+
+
+<style>
+    #myChart {
+        width: 100%;
+        max-width: 600px;
+        height: 400px;
+        margin: 0 auto;
+    }
+</style>

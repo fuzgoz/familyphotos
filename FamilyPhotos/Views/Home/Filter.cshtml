@@ -1,0 +1,45 @@
+﻿@model FilterViewModel
+
+@{
+    ViewData["Title"] = "Szűrés eredménye";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<div class="row">
+    @if (Model.Folders.Any())
+    {
+        @foreach (var folder in Model.Folders)
+        {
+            <div class="col-sm-3">
+                <div class="card mb-4" style="background-color: @($"{folder.Color}59"); width: 100%;">
+                    <div class="wrapper">
+                        @if (folder.IsFavorite)
+                        {
+                            <div class="border"></div>
+                        }
+                        <img class="card-img-top" src="~/images/blue-folder-rounded.png" onclick="location.href='/Folder/@folder.Id'" />
+                        <div class="card-body">
+                            <p class="card-text" location.href='/Folder/@folder.Id'>
+                                <strong>@folder.Name</strong>
+                                <br />
+                                @folder.Location
+                                <br />
+                                @folder.Date
+                            </p>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        }
+
+    }
+    @if (!Model.Folders.Any())
+    {
+        <p>Nincsenek találatok a keresésednek megfelelően.</p>
+    }
+</div>
+
+<p><a href="@Url.Action("Index")">Vissza az összes mappához</a></p>

@@ -1,0 +1,132 @@
+﻿@using FamilyPhotos.Entities;
+@model HomeViewModel;
+@{
+    ViewData["Title"] = "Kedvenc mappák";
+}
+
+<html lang="hu">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="/docs/4.0/assets/img/favicons/favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <link href="~/css/site.css">
+
+    <link href="../../dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link href="album.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+    <!-- #region Folder Cards -->
+        <div class="album py-5">
+            <div class="container">
+                <button type="button" class="btn btn-secondary" onclick="$('#folderModal').modal('show')" style="margin-bottom: 50px;">Új mappa létrehozása</button>
+                <h2>Kedvenc mappák</h2>
+                <div class="row">
+                    @foreach (var folder in Model.Folders)
+                    {
+                        <div class="col-sm-3">
+                            <div class="card mb-4" style="background-color: @($"{folder.Color}59"); width: 100%;">
+                                <div class="wrapper">
+                                    <div class="border"></div>
+                                    <img class="card-img-top" src="~/images/blue-folder-rounded.png" onclick="location.href='/Folder/@folder.Id'" />
+                                    <div class="card-body">
+                                        <p class="card-text" location.href='/Folder/@folder.Id'>
+                                            <strong>@folder.Name</strong>
+                                            <br />
+                                            @folder.Location
+                                            <br />
+                                            @folder.Date
+                                        </p>
+                                        <div class="d-flex justify-content-end align-items-center">
+                                            <div class="btn-group">
+                                                <form method="post" asp-action="Download" asp-controller="Folder" asp-route-id="@folder.Id" onsubmit="return confirm('Biztosan le akarod tölteni a mappát?);">
+                                                    <button type="submit" class="btn btn-sm btn-outline-secondary"><i class="fa fa-arrow-down" aria-hidden="true"></i></button>
+                                                </form>
+                                                <form method="post" asp-action="DeleteFolder" asp-controller="Home" asp-route-id="@folder.Id" onsubmit="return confirm('Biztosan törölni akarod ezt a mappát?\nA törlés végleges.');">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fa fa-trash-o" aria-hidden="true"></i></button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                @if (Model.Folders.Count == 0)
+                {
+                    <div>Nincsenek mappák a kedvencekben. <a href="/">Vissza az összes mappához.</a></div>
+                }
+            </div>
+        </div>
+
+    <div class="modal fade" tabindex="-1" role="dialog" id="folderModal" aria-labelledby="folderModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form asp-action="NewFolder" asp-controller="Home" method="post">
+                    <div class="form-group">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Új mappa</h5>
+                            <button type="button" class="close" onclick="$('#folderModal').modal('hide')" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <label for="name">Név</label>
+                            <input type="text" name="name" class="form-control" placeholder="Add meg a mappa nevét" required />
+
+                            <label for="date">Dátum</label>
+                            <input type="date" name="date" class="form-control" />
+
+                            <label for="location">Hely</label>
+                            <input type="text" name="location" class="form-control" placeholder="Adj meg egy helyszínt" />
+
+                            <label for="color">Szín</label>
+                            <input type="color" name="color" class="form-control" value="#FFFFFF" />
+
+                            <div id="peopleList">
+                                <label for="personName">Személyek neve</label><br />
+                                <input type="text" name="PersonNames[0]" placeholder="Személy neve" class="form-control" />
+                            </div>
+
+                            <button type="button" id="addPersonFieldButton">Új mező hozzáadása</button>
+
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Mappa létrehozása</button>
+                            <button type="button" class="btn btn-secondary" onclick="$('#folderModal').modal('hide')">Close</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+
+    <p><a href="@Url.Action("Index")">Vissza az összes mappához</a></p>
+
+
+    <script src="~/js/site.js"></script>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery-slim.min.js"><\/script>')</script>
+    <script src="../../assets/js/vendor/popper.min.js"></script>
+    <script src="../../dist/js/bootstrap.min.js"></script>
+    <script src="../../assets/js/vendor/holder.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+
+</body>
+</html>

@@ -1,0 +1,79 @@
+﻿@{
+    ViewData["Title"] = "Mappa Kép Statisztikák";
+    var chartDataJson = Newtonsoft.Json.JsonConvert.SerializeObject(Model);
+}
+
+<h2>Mappa Kép Statisztikák</h2>
+
+@if (Model.Count == 0)
+{
+    <p>Nincsenek mappák. <a class="btn btn-link" href="@Url.Action("Index")">Vissza a kezdőlapra!</a></p>
+
+}
+
+<!-- Képhez tartozó statisztika -->
+<div>
+    <ul>
+        @foreach (var folder in Model)
+        {
+            <li>@folder.FolderName: @folder.ImageCount kép</li>
+        }
+    </ul>
+</div>
+
+
+
+<!-- Canvas, ahol a Chart.js kirajzolja a kördiagramot -->
+<canvas id="myChart" width="300" height="300"></canvas>
+    
+<!-- CDN-ből betöltjük a Chart.js könyvtárat -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+    var chartData = @Html.Raw(chartDataJson);
+
+    // A mappák nevei és képek száma a JSON adatból
+    var labels = chartData.map(function (item) { return item.FolderName; });
+    var data = chartData.map(function (item) { return item.ImageCount; });
+
+    var config = {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Kép mappák statisztikái',
+                data: data,
+                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#FF5733', '#C70039'],
+                hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#FF5733', '#C70039']
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function (tooltipItem) {
+                            return tooltipItem.label + ': ' + tooltipItem.raw + ' kép   ';
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    // Diagram megjelenítése
+    var myChart = new Chart(document.getElementById('myChart'), config);
+</script>
+
+<style>
+    #myChart {
+        width: 100%;
+        max-width: 600px;
+        height: 400px;
+        margin: 0 auto;
+    }
+</style>

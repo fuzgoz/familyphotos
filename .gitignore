@@ -1,0 +1,12 @@
+/.vs
+/bin
+/obj
+/uploads
+/downloads
+/data
+
+*.user
+*.suo
+*.cache
+.vscode/
+appsettings.Development.json

@@ -1,0 +1,46 @@
+﻿@model RegisterViewModel
+
+@{
+    ViewData["title"] = "Regisztráció";
+}
+
+<h2>Regisztráció</h2> <!-- teszt : A1.a1. -->
+
+<form asp-action="Register" method="post">
+    <!-- Hibák összegzése, ha vannak -->
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <div class="form-group">
+        <label for="Username">Felhasználónév</label>
+        <input type="text" class="form-control" id="Username" name="Username" value="@Model?.Username" required />
+        <span asp-validation-for="Username" class="text-danger"></span> <!-- Egyéni hibaüzenet a mezőhöz -->
+    </div>
+
+    <div class="form-group">
+        <label for="Email">Email</label>
+        <input type="email" class="form-control" id="Email" name="Email" value="@Model?.Email" required />
+        <span asp-validation-for="Email" class="text-danger"></span> <!-- Egyéni hibaüzenet a mezőhöz -->
+    </div>
+
+    <div class="form-group">
+        <label for="Password">Jelszó</label>
+        <input type="password" class="form-control" id="Password" name="Password" required />
+        <span asp-validation-for="Password" class="text-danger"></span> <!-- Egyéni hibaüzenet a mezőhöz -->
+    </div>
+
+    <div class="form-group">
+        <label for="ConfirmPassword">Jelszó megerősítése</label>
+        <input type="password" class="form-control" id="ConfirmPassword" name="ConfirmPassword" required />
+        <span asp-validation-for="ConfirmPassword" class="text-danger"></span> <!-- Egyéni hibaüzenet a mezőhöz -->
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-2">Regisztráció</button>
+</form>
+
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,0 +1,285 @@
+﻿@using FamilyPhotos.Entities;
+@model HomeViewModel;
+@{
+    ViewData["Title"] = "Kezdőlap";
+}
+
+<html lang="hu">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="/docs/4.0/assets/img/favicons/favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+
+
+    <link href="~/css/site.css">
+
+    <link href="../../dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link href="album.css" rel="stylesheet">
+    <style>
+        .dropdown-container {
+            display: block;
+            overflow: hidden;
+            max-height: 0;
+            opacity: 0;
+            transition: opacity 0.5s ease, max-height 0.5s ease;
+            margin-top: 10px;
+        }
+
+            .dropdown-container.show {
+                max-height: 500px;
+                opacity: 1;
+            }
+
+        .dropdown-toggle {
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dropdown-container input, .dropdown-container textarea {
+            width: 100%;
+        }
+
+        .dropdown-icon {
+            font-size: 1.2em;
+            transition: transform 0.3s ease;
+        }
+
+            .dropdown-icon.open {
+                transform: rotate(180deg); /* Nyitott állapotban lefelé mutató nyíl */
+            }
+    </style>
+</head>
+
+<body>
+
+    <!-- #region NewFolder Modal -->
+    <div class="modal fade" tabindex="-1" role="dialog" id="folderModal" aria-labelledby="folderModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form asp-action="NewFolder" asp-controller="Home" method="post">
+                    <div class="form-group">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Új mappa</h5>
+                            <button type="button" class="close" onclick="$('#folderModal').modal('hide')" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <label for="name">Név</label>
+                            <input type="text" name="name" class="form-control" placeholder="Add meg a mappa nevét" required />
+
+                            <label for="date">Dátum</label>
+                            <input type="date" name="date" class="form-control" />
+
+                            <label for="location">Hely</label>
+                            <input type="text" name="location" class="form-control" placeholder="Adj meg egy helyszínt" />
+
+                            <label for="color">Szín</label>
+                            <input type="color" name="color" class="form-control" value="#FFFFFF" />
+
+                            <div id="peopleList">
+                                <label for="personName">Személyek neve</label><br />
+                                <input type="text" name="PersonNames[0]" placeholder="Személy neve" class="form-control" />
+                            </div>
+
+                            <button type="button" id="addPersonFieldButton">Új mező hozzáadása</button>
+
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Mappa létrehozása</button>
+                            <button type="button" class="btn btn-secondary" onclick="$('#folderModal').modal('hide')">Close</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- #endregion -->
+    <!-- szűrés v2 -->
+    <div class="modal fade" tabindex="-1" role="dialog" id="filterModal" aria-labelledby="filterModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form method="post" asp-action="Filter">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Szűrés</h5>
+                        <button type="button" class="btn btn-close" onclick="$('#filterModal').modal('hide')" aria-label="Close">
+                            <span aria-hidden="true"></span>
+                        </button>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="form-group mb-3">
+
+                            <button type="button" class="form-control btn btn-dark d-flex justify-content-between align-items-center" onclick="toggleDropdown('dropdown1', this)">
+                                <span class="text-center w-100">Dátum alapján</span>
+                                <span class="dropdown-icon text-align-end ms-auto"><i class="fa-solid fa-caret-left"></i></span>
+                            </button>
+                            <div class="dropdown-container" id="dropdown1">
+                                <input type="date" id="date" class="form-control" name="date" />
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <button type="button" class="form-control btn btn-dark d-flex justify-content-between align-items-center" onclick="toggleDropdown('dropdown2', this)">
+                                <span class="text-center w-100">Név alapján</span>
+                                <span class="dropdown-icon text-align-end ms-auto"><i class="fa-solid fa-caret-left"></i></span> <!-- Le nyíl -->
+                            </button>
+                            <div class="dropdown-container" id="dropdown2">
+                                <input type="text" id="person" class="form-control" placeholder="Név..." name="person" />
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <button type="button" class="form-control btn btn-dark d-flex justify-content-between align-items-center" onclick="toggleDropdown('dropdown3', this)">
+                                <span class="text-center w-100">Helyszín alapján</span>
+                                <span class="dropdown-icon text-align-end ms-auto"><i class="fa-solid fa-caret-left"></i></span> <!-- Le nyíl -->
+                            </button>
+                            <div class="dropdown-container" id="dropdown3">
+                                <input type="text" id="location" class="form-control" placeholder="Helyszín..." name="location" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer d-flex justify-content-between align-items-center">
+                        <button class="btn btn-light mb-0" type="button" id="favoritesButton" onclick="location.href = '@Url.Action("Favorites", "Home")'">Kedvencek listázása</button>
+                        <div class="d-flex ms-auto" style="gap: 10px;">
+                            <button type="submit" class="btn btn-primary">Szűrés</button>
+                            <button type="reset" class="btn btn-secondary" onclick="$('#filterModal').modal('hide')">Mégse</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- #region Folder Cards -->
+    <main role="main">
+        <div class="album py-5">
+            <div class="container">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="mb-0 align-items-center">Mappák</h2>
+                    <div class="d-flex ms-auto" style="gap: 10px;">
+                        <button type="button" class="btn btn-secondary" onclick="$('#filterModal').modal('show')">Szűrés</button>
+                        <button type="button" class="btn btn-secondary" onclick="$('#folderModal').modal('show')">Új mappa</button>
+                    </div>
+                </div>
+                <hr/>
+                <div class="row">
+                    @foreach (var folder in Model.Folders)
+                    {
+                        <div class="col-sm-3">
+                            <div class="card mb-4" style="background-color: @($"{folder.Color}59"); width: 100%;">
+                                <div class="wrapper">
+                                    @if (folder.IsFavorite)
+                                    {
+                                        <div class="border"></div>
+                                    }
+                                    <img class="card-img-top" src="~/images/blue-folder-rounded.png" onclick="location.href='/Folder/@folder.Id'" />
+                                    <div class="card-body">
+                                        <p class="card-text" location.href='/Folder/@folder.Id'>
+                                            <strong>@folder.Name</strong>
+                                            <br />
+                                            @folder.Location
+                                            <br />
+                                            @folder.Date
+                                        </p>
+                                        <div class="d-flex justify-content-end align-items-center">
+                                            <div class="btn-group">
+                                                <form method="post" asp-action="Download" asp-controller="Folder" asp-route-id="@folder.Id" onsubmit="return confirm('Biztosan le akarod tölteni a mappát?);">
+                                                    <button type="submit" class="btn btn-sm btn-outline-secondary"><i class="fa fa-arrow-down" aria-hidden="true"></i></button>
+                                                </form>
+                                                <form method="post" asp-action="DeleteFolder" asp-controller="Home" asp-route-id="@folder.Id" onsubmit="return confirm('Biztosan törölni akarod ezt a mappát?\nA törlés végleges.');">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fa fa-trash-o" aria-hidden="true"></i></button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    @if (Model.Folders.Count == 0)
+                    {
+                        <p>Nincsenek mappák. <button class="btn btn-link" onclick="$('#folderModal').modal('show')">Adj hozzá újat.</button></p>
+                    }
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+    <!-- #endregion -->
+
+    <script src="~/js/site.js"></script>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery-slim.min.js"><\/script>')</script>
+    <script src="../../assets/js/vendor/popper.min.js"></script>
+    <script src="../../dist/js/bootstrap.min.js"></script>
+    <script src="../../assets/js/vendor/holder.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        document.getElementById('favoritesButton').addEventListener('click', function () {
+            location.href = '/Home/Favorites';
+        });
+    </script>
+
+    <script>
+        function toggleDropdown(id, button) {
+            const dropdown = document.getElementById(id);
+            const icon = button.querySelector('.dropdown-icon i');  // Kiválasztjuk az i elemet a .dropdown-icon-ból
+
+            // Ha a dropdown még nincs nyitva, akkor nyisd meg, és frissítsd az ikont
+            if (!dropdown.classList.contains('show')) {
+                dropdown.classList.add('show');
+                icon.classList.remove('fa-caret-left');  // Ha jobbra mutat, távolítsuk el
+                icon.classList.add('fa-caret-down');      // Ha lefelé mutat, adjuk hozzá
+            } else {
+                dropdown.classList.remove('show');
+                icon.classList.remove('fa-caret-down');  // Ha lefelé mutat, távolítsuk el
+                icon.classList.add('fa-caret-left');     // Ha jobbra mutat, adjuk hozzá
+            }
+        }
+    </script>
+
+    <script>
+
+        let personIndex = 1;
+
+        document.getElementById("addPersonFieldButton").addEventListener("click", function () {
+            const newField = document.createElement("input");
+            newField.type = "text";
+            newField.name = "PersonNames[" + personIndex + "]";
+            newField.classList.add("form-control");
+            newField.placeholder = "Személy neve";
+            document.getElementById("peopleList").appendChild(newField);
+            personIndex++;
+        });
+
+    </script>
+
+</body>
+</html>
