@@ -139,7 +139,7 @@ Az alkalmazás **regisztrációs és bejelentkezési rendszerrel** rendelkezik.
 Ez a projekt **oktatási célokra** készült és **személyes portfólió** részét képezi.
 
 
-**Készítés ideje**: 2024. január-február  
+**Készítés ideje**: 2024. december  
 **Projekt típusa**: Egyetemi beadandó
 
 ---
