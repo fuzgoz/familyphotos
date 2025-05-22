@@ -11,7 +11,7 @@
 Ez a projekt egy **ASP.NET MVC** alapú webalkalmazás, amely családi fotóalbumok kezelésére szolgál. Az alkalmazás lehetővé teszi a felhasználók számára, hogy mappákba rendezzék fényképeiket, különböző metaadatokkal (dátum, helyszín, személyek) láthassák el őket, és különböző szűrési lehetőségeket használjanak.
 
 > **⚠️ Megjegyzés**  
-> Ez a projekt egy egyetemi beadandó (_Webalkalmazásfejlesztés (C#)_), ami 2024 decemberében készült körülbelül egy hónap alatt. Tudom, hogy számos fejlesztési lehetőség van, de a kódot nem a _jelenlegi_ tudásom reprezentációjának szánom.
+> Ez a projekt egy egyetemi beadandó (_Webalkalmazásfejlesztés (C#)_), ami 2024 decemberében készült körülbelül egy hónap alatt. Tudom, hogy számos fejlesztési lehetőség van, de a kódot nem a _jelenlegi_ tudásom reprezentációjának szánom, egyike a korai ASP.NET projektjeimnek és rengeteget tanultam belőle.
 
 ## ✨ Főbb funkciók
 
